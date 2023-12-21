@@ -4,6 +4,7 @@ export enum CellTypeEnum {
 }
 
 export interface ICell {
+  id: number;
   row: number;
   column: number;
   type: CellTypeEnum;
@@ -13,5 +14,5 @@ export interface ICell {
 
 export interface IRow {
   id: number;
-  cells: ICell[];
+  cells: any[];
 }

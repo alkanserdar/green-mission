@@ -1,13 +1,9 @@
 <template>
   <div>
-    <button @click="createCell">Create Cell</button>
-    <!-- <div v-for="(cell, index) in cells" :key="index">
-      Row: {{ cell.row }} - Column: {{ cell.column }} - Value: {{ cell.image }}
-    </div> -->
     <div v-for="(row, index) in rows" :key="index">
       <div v-for="(cell, index) in row.cells" :key="index">
-        Row: {{ cell.row }} - Column: {{ cell.column }} - Value:
-        {{ cell.image }}
+        <!-- Row: {{ cell.row }} - Column: {{ cell.column }} - Value:
+        {{ cell.image }} -->
       </div>
     </div>
   </div>
@@ -29,6 +25,20 @@
       </b-col>
     </b-row>
   </b-container>
+  <div id="app">
+    <div class="">
+      <div v-for="(row, rowIndex) in rows" :key="rowIndex" class="row">
+        <div
+          v-for="(cell, cellIndex) in row.cells"
+          :key="cellIndex"
+          class="col"
+        >
+          Row: {{ cell.row }} - Col: {{ cell.column }} - Value:
+          {{ cell.image }}
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -54,39 +64,34 @@ export default defineComponent({
     this.createRow();
   },
   methods: {
-    createCell(): ICell {
+    createCell(rowOrder: number, columnOrder: number): ICell {
       this.cellCount++;
       var type = this.getRandomCellType();
       const newCell: ICell = {
-        row: this.cellCount,
-        column: this.cellCount,
+        id: this.cellCount,
+        row: rowOrder,
+        column: columnOrder,
         type: type,
         image: "./assets/logo.png",
         isOpen: false,
       };
       return newCell;
-      // this.cells.push(newCell);
     },
     createRow() {
-      //this.cellCount++;
+      var counter = 0;
 
       for (var row = 0; row < 9; row++) {
-        var myRow = {} as IRow;
+        var columnCounter = 0;
+        counter++;
+        var myRow = { id: 0, cells: [] } as IRow;
         for (var cell = 0; cell < 9; cell++) {
-          var cr = this.createCell();
+          columnCounter++;
+          var cr = this.createCell(counter, columnCounter);
           myRow.cells.push(cr);
         }
+        console.log(myRow);
         this.rows.push(myRow);
       }
-      // var type = this.getRandomCellType();
-      // const newCell: ICell = {
-      //   row: this.cellCount,
-      //   column: this.cellCount,
-      //   type: type,
-      //   image: "./assets/logo.png",
-      //   isOpen: false,
-      // };
-      // this.cells.push(newCell);
     },
     getRandomCellType(): CellTypeEnum {
       const randomValue = Math.random();
@@ -108,7 +113,18 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr); /* 9 sütun */
+  gap: 2px; /* Hücreler arası boşluk */
+}
+.row {
+  /* display: flex; */
+}
 .cell {
-  border: 1px black solid;
+  flex: 1;
+  border: 1px solid #000; /* Hücre çerçevesi */
+  padding: 5px; /* Hücre iç boşluğu */
+  text-align: center; /* Hücre içindeki metni ortala */
 }
 </style>
