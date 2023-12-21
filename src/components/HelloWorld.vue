@@ -1,40 +1,30 @@
 <template>
-  <div>
-    <div v-for="(row, index) in rows" :key="index">
-      <div v-for="(cell, index) in row.cells" :key="index">
-        <!-- Row: {{ cell.row }} - Column: {{ cell.column }} - Value:
-        {{ cell.image }} -->
-      </div>
-    </div>
-  </div>
-  <b-container class="row">
-    <b-row>
-      <b-col lg="12">Title</b-col>
-    </b-row>
-    <b-row>
-      <b-col lg="12">
-        <div class="d-flex justify-content-center">
-          <div>
-            <tr v-for="i in 10" :key="i">
-              <td v-for="j in 10" :key="j">
-                <div class="cell">tre</div>
-              </td>
-            </tr>
+  <div id="app">
+    <div class="container">
+      <div class="row">
+        <div class="progress">
+          <div
+            :class="timerClass"
+            role="progressbar"
+            style="width: 100%"
+            aria-valuenow="100"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            selam
           </div>
         </div>
-      </b-col>
-    </b-row>
-  </b-container>
-  <div id="app">
-    <div class="">
-      <div v-for="(row, rowIndex) in rows" :key="rowIndex" class="row">
-        <div
-          v-for="(cell, cellIndex) in row.cells"
-          :key="cellIndex"
-          class="col"
-        >
-          Row: {{ cell.row }} - Col: {{ cell.column }} - Value:
-          {{ cell.image }}
+      </div>
+      <div class="row">
+        <div v-for="(row, rowIndex) in rows" :key="rowIndex" class="row">
+          <div
+            v-for="(cell, cellIndex) in row.cells"
+            :key="cellIndex"
+            class="col cell"
+          >
+            <img v-if="!cell.isOpen" src="../assets/tree.png" />
+            <img v-else src="../assets/tree.png" />
+          </div>
         </div>
       </div>
     </div>
@@ -44,24 +34,60 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { CellTypeEnum, ICell, IRow } from "../types/cell";
+import { getRandomImage } from "../common/helper";
 
 export default defineComponent({
   data(): {
     cells: ICell[];
     rows: IRow[];
     cellCount: number;
+    value: number;
+    temperature: number;
+    timer: number;
   } {
     return {
       cells: [],
       rows: [],
       cellCount: 0,
+      value: 60,
+      temperature: 25,
+      timer: 5,
     };
   },
   props: {
     msg: String,
   },
+  computed: {
+    timerClass() {
+      if (this.temperature < 20) {
+        return "progress-bar bg-success";
+      } else if (this.temperature >= 20 && this.temperature < 30) {
+        return "progress-bar bg-warning";
+      } else {
+        return "progress-bar bg-danger";
+      }
+    },
+  },
+  watch: {
+    value(newValue) {
+      console.log("Value changed:", newValue);
+    },
+  },
   mounted() {
     this.createRow();
+    // setInterval(() => {
+    //   this.temperature++;
+    // }, 1000);
+
+    // this.$watch("temperature", (newVal) => {
+    //   if (newVal < 20) {
+    //     this.timer = 10;
+    //   } else if (newVal >= 20 && newVal < 30) {
+    //     this.timer = 5;
+    //   } else {
+    //     this.timer = 2;
+    //   }
+    // });
   },
   methods: {
     createCell(rowOrder: number, columnOrder: number): ICell {
@@ -72,8 +98,8 @@ export default defineComponent({
         row: rowOrder,
         column: columnOrder,
         type: type,
-        image: "./assets/logo.png",
-        isOpen: false,
+        image: getRandomImage(CellTypeEnum[type]),
+        isOpen: true,
       };
       return newCell;
     },
@@ -96,31 +122,19 @@ export default defineComponent({
     getRandomCellType(): CellTypeEnum {
       const randomValue = Math.random();
       if (randomValue < 0.5) {
-        return CellTypeEnum.Tree;
+        return CellTypeEnum.sustainable;
       } else {
-        return CellTypeEnum.Water;
+        return CellTypeEnum.warning;
       }
     },
-    getImagePath(cellType: CellTypeEnum): string {
-      if (cellType == CellTypeEnum.Tree) {
-        return "./assets/logo.png";
-      } else {
-        return "./assets/logo.png";
-      }
+    getImageName(image: string) {
+      return image;
     },
   },
 });
 </script>
 
 <style scoped>
-.grid {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr); /* 9 sütun */
-  gap: 2px; /* Hücreler arası boşluk */
-}
-.row {
-  /* display: flex; */
-}
 .cell {
   flex: 1;
   border: 1px solid #000; /* Hücre çerçevesi */
