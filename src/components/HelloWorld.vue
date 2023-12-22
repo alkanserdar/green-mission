@@ -1,4 +1,5 @@
 <template>
+  <img src="../assets/dxcode-logo.png" />
   <div id="app" v-if="!gameOver">
     <TimerCountComponent />
     <div class="container">
@@ -29,6 +30,7 @@
     <img src="../assets/game_over.png" class="mr-5" />
     <button @click="restartGame"><img src="../assets/retry.png" /></button>
   </div>
+  
 </template>
 
 <script lang="ts">
@@ -53,7 +55,7 @@ export default defineComponent({
       cellCount: 0,
       temperature: 25,
       timer: 5,
-      countdown: 5,
+      countdown: 60,
       gameOver: false,
       imageUrls: {
         sustainable: ["green_leaves_nature.png", "cactus.png", "tree.png"],
