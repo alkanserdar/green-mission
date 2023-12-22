@@ -20,7 +20,8 @@ export default defineComponent({
   --bg: #e3e4e8;
   --fg: #2e3138;
   --primary: #255ff4;
-  font-size: calc(16px + (24 - 16) * (100vw - 320px) / (1280 - 320));
+  /*font-size: calc(16px + (24 - 16) * (100vw - 320px) / (1280 - 320));*/
+  font-size: 14px;
 }
 
 body {

@@ -1,47 +1,23 @@
 <template>
-  <TimerCountComponent />
-  <div id="app">
+  <div id="app" v-if="!gameOver">
+    <TimerCountComponent />
     <div class="container">
       <div class="timer-container">
-        <div
-          class="spinner-border text-secondary"
-          role="status"
-          v-if="!gameOver"
-        >
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        <div v-else>
-          <img
-            src="https://cdn.jsdelivr.net/gh/Mahendra0854/Loader-Icons/loader-icon/hourglass.gif"
-            alt="Hourglass"
-          />
-        </div>
-        <div class="timer">{{ countdown }}</div>
+        <div class="timer"><b>Timer</b>: {{ countdown }}</div>
       </div>
 
       <div class="progress row">
-        <div
-          :class="timerClass"
-          role="progressbar"
-          style="width: 100%"
-          aria-valuenow="100"
-          aria-valuemin="0"
-          aria-valuemax="100"
-        >
-          {{ temperature }}
+        <div :class="timerClass" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0"
+          aria-valuemax="100">
+          Temperature {{ temperature }}
         </div>
+        
       </div>
-      <div>{{ countdown }}</div>
-      <div class="mt-5">
+      <!-- <div>{{ countdown }}</div> -->
+      <div class="mt-5" v-if="!gameOver">
         <div v-for="(row, rowIndex) in rows" :key="rowIndex" class="row">
-          <div
-            v-for="(cell, cellIndex) in row.cells"
-            :key="cellIndex"
-            class="col cell"
-            :id="cell.id"
-            :cellType="cell.type"
-            v-on:click="openImage(cell)"
-          >
+          <div v-for="(cell, cellIndex) in row.cells" :key="cellIndex" class="col cell" :id="cell.id"
+            :cellType="cell.type" v-on:click="openImage(cell)">
             <img v-if="!cell.isOpen" src="../assets/speed.png" />
             <img :alt="cell.id" v-else :src="getImagePath(cell.image)" />
           </div>
@@ -49,17 +25,15 @@
       </div>
     </div>
   </div>
-  <div v-if="gameOver" class="popup">
-    <h2>Game Over!</h2>
-    <button @click="restartGame">Retry</button>
+  <div v-else class="popup">
+    <img src="../assets/game_over.png" class="mr-5" />
+    <button @click="restartGame"><img src="../assets/retry.png" /></button>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { CellTypeEnum, ICell, IRow } from "../types/cell";
-// import Timer from "./timer-count";
-// import { getRandomImage } from "../common/helper";
 import TimerCountComponent from "./timer-count.vue";
 
 export default defineComponent({
@@ -67,7 +41,6 @@ export default defineComponent({
     cells: ICell[];
     rows: IRow[];
     cellCount: number;
-    value: number;
     temperature: number;
     timer: number;
     countdown: number;
@@ -78,10 +51,9 @@ export default defineComponent({
       cells: [],
       rows: [],
       cellCount: 0,
-      value: 60,
       temperature: 25,
       timer: 5,
-      countdown: 60,
+      countdown: 5,
       gameOver: false,
       imageUrls: {
         sustainable: ["green_leaves_nature.png", "cactus.png", "tree.png"],
@@ -106,27 +78,9 @@ export default defineComponent({
       }
     },
   },
-  watch: {
-    value(newValue) {
-      console.log("Value changed:", newValue);
-    },
-  },
   mounted() {
     this.startCountdown();
     this.createRow();
-    // setInterval(() => {
-    //   this.temperature++;
-    // }, 1000);
-
-    // this.$watch("temperature", (newVal) => {
-    //   if (newVal < 20) {
-    //     this.timer = 10;
-    //   } else if (newVal >= 20 && newVal < 30) {
-    //     this.timer = 5;
-    //   } else {
-    //     this.timer = 2;
-    //   }
-    // });
   },
   methods: {
     createCell(rowOrder: number, columnOrder: number): ICell {
@@ -206,9 +160,15 @@ export default defineComponent({
       this.gameOver = true;
     },
     restartGame() {
+      this.clearData();
+      this.startCountdown();
+      this.createRow();
+    },
+    clearData() {
+      this.rows = []
+      this.temperature = 25
       this.countdown = 60;
       this.gameOver = false;
-      this.startCountdown();
     },
   },
 });
