@@ -1,40 +1,66 @@
 <template>
+  <TimerCountComponent />
   <div id="app">
     <div class="container">
-      <div class="row">
-        <div class="progress">
-          <div
-            :class="timerClass"
-            role="progressbar"
-            style="width: 100%"
-            aria-valuenow="100"
-            aria-valuemin="0"
-            aria-valuemax="100"
-          >
-            selam
-          </div>
+      <div class="timer-container">
+        <div
+          class="spinner-border text-secondary"
+          role="status"
+          v-if="!gameOver"
+        >
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div v-else>
+          <img
+            src="https://cdn.jsdelivr.net/gh/Mahendra0854/Loader-Icons/loader-icon/hourglass.gif"
+            alt="Hourglass"
+          />
+        </div>
+        <div class="timer">{{ countdown }}</div>
+      </div>
+
+      <div class="progress row">
+        <div
+          :class="timerClass"
+          role="progressbar"
+          style="width: 100%"
+          aria-valuenow="100"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          {{ temperature }}
         </div>
       </div>
-      <div class="row">
+      <div>{{ countdown }}</div>
+      <div class="mt-5">
         <div v-for="(row, rowIndex) in rows" :key="rowIndex" class="row">
           <div
             v-for="(cell, cellIndex) in row.cells"
             :key="cellIndex"
             class="col cell"
+            :id="cell.id"
+            :cellType="cell.type"
+            v-on:click="openImage(cell)"
           >
-            <img v-if="!cell.isOpen" src="../assets/tree.png" />
-            <img v-if="cell.isOpen" :src="getImagePath(cell.image)" />
+            <img v-if="!cell.isOpen" src="../assets/speed.png" />
+            <img :alt="cell.id" v-else :src="getImagePath(cell.image)" />
           </div>
         </div>
       </div>
     </div>
+  </div>
+  <div v-if="gameOver" class="popup">
+    <h2>Game Over!</h2>
+    <button @click="restartGame">Retry</button>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { CellTypeEnum, ICell, IRow } from "../types/cell";
+// import Timer from "./timer-count";
 // import { getRandomImage } from "../common/helper";
+import TimerCountComponent from "./timer-count.vue";
 
 export default defineComponent({
   data(): {
@@ -44,7 +70,8 @@ export default defineComponent({
     value: number;
     temperature: number;
     timer: number;
-    // imageUrls: any[];
+    countdown: number;
+    gameOver: boolean;
     imageUrls: Record<string, string[]>;
   } {
     return {
@@ -54,11 +81,16 @@ export default defineComponent({
       value: 60,
       temperature: 25,
       timer: 5,
+      countdown: 60,
+      gameOver: false,
       imageUrls: {
         sustainable: ["green_leaves_nature.png", "cactus.png", "tree.png"],
         warning: ["axe.png"],
       },
     };
+  },
+  components: {
+    TimerCountComponent,
   },
   props: {
     msg: String,
@@ -80,6 +112,7 @@ export default defineComponent({
     },
   },
   mounted() {
+    this.startCountdown();
     this.createRow();
     // setInterval(() => {
     //   this.temperature++;
@@ -105,7 +138,7 @@ export default defineComponent({
         column: columnOrder,
         type: type,
         image: this.getRandomImage(CellTypeEnum[type]),
-        isOpen: true,
+        isOpen: false,
       };
       return newCell;
     },
@@ -151,6 +184,32 @@ export default defineComponent({
     getImagePath(imageUrl: string) {
       return require(`../assets/${imageUrl}`);
     },
+    openImage(e: ICell) {
+      e.isOpen = !e.isOpen;
+      if (e.type === CellTypeEnum.sustainable) {
+        this.temperature--;
+      } else if (e.type === CellTypeEnum.warning) {
+        this.temperature++;
+      }
+    },
+    startCountdown() {
+      this.timer = setInterval(() => {
+        if (this.countdown > 0) {
+          this.countdown--;
+        } else {
+          clearInterval(this.timer);
+          this.showGameOverPopup();
+        }
+      }, 1000);
+    },
+    showGameOverPopup() {
+      this.gameOver = true;
+    },
+    restartGame() {
+      this.countdown = 60;
+      this.gameOver = false;
+      this.startCountdown();
+    },
   },
 });
 </script>
@@ -158,8 +217,8 @@ export default defineComponent({
 <style scoped>
 .cell {
   flex: 1;
-  border: 1px solid #000; /* Hücre çerçevesi */
-  padding: 5px; /* Hücre iç boşluğu */
-  text-align: center; /* Hücre içindeki metni ortala */
+  border: 1px solid #000;
+  padding: 5px;
+  text-align: center;
 }
 </style>
