@@ -43,7 +43,7 @@
       "parser": "@typescript-eslint/parser"
     },
     "rules": {
-      "no-debugger": 0
+      "no-debugger": 1
     }
   },
   "browserslist": [

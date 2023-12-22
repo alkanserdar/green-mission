@@ -23,7 +23,7 @@
             class="col cell"
           >
             <img v-if="!cell.isOpen" src="../assets/tree.png" />
-            <img v-else src="../assets/tree.png" />
+            <img v-if="cell.isOpen" :src="getImagePath(cell.image)" />
           </div>
         </div>
       </div>
@@ -34,7 +34,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { CellTypeEnum, ICell, IRow } from "../types/cell";
-import { getRandomImage } from "../common/helper";
+// import { getRandomImage } from "../common/helper";
 
 export default defineComponent({
   data(): {
@@ -44,6 +44,8 @@ export default defineComponent({
     value: number;
     temperature: number;
     timer: number;
+    // imageUrls: any[];
+    imageUrls: Record<string, string[]>;
   } {
     return {
       cells: [],
@@ -52,6 +54,10 @@ export default defineComponent({
       value: 60,
       temperature: 25,
       timer: 5,
+      imageUrls: {
+        sustainable: ["green_leaves_nature.png", "cactus.png", "tree.png"],
+        warning: ["axe.png"],
+      },
     };
   },
   props: {
@@ -98,7 +104,7 @@ export default defineComponent({
         row: rowOrder,
         column: columnOrder,
         type: type,
-        image: getRandomImage(CellTypeEnum[type]),
+        image: this.getRandomImage(CellTypeEnum[type]),
         isOpen: true,
       };
       return newCell;
@@ -127,8 +133,23 @@ export default defineComponent({
         return CellTypeEnum.warning;
       }
     },
-    getImageName(image: string) {
-      return image;
+    getImageName(imagePath: string) {
+      console.log(imagePath);
+      var a = require(`@/assets/${imagePath}`).default;
+      return a;
+    },
+    getRandomImage(key: string): string {
+      console.log(key);
+      const urls = this.imageUrls[key];
+      if (urls && urls.length > 0) {
+        const randomIndex = Math.floor(Math.random() * urls.length);
+        return urls[randomIndex];
+      }
+      return "tree.png";
+    },
+
+    getImagePath(imageUrl: string) {
+      return require(`../assets/${imageUrl}`);
     },
   },
 });
